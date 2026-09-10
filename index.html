@@ -70,8 +70,17 @@
       margin-bottom: 24px; background: #FFFFFF; padding: 16px 24px;
       border-radius: 14px; border: 1px solid #E2E8F0;
     }
+    .header-left { display: flex; align-items: center; gap: 12px; }
     .header-title h1 { font-size: 18px; font-weight: 700; color: #0F172A; }
     .header-title p { font-size: 13px; color: #64748B; }
+
+    /* BOTÃO DE MENU VISÍVEL APENAS NO CELULAR */
+    .mobile-toggle {
+      display: none; border: 1px solid #E2E8F0; background: #F8FAFC; color: #0F172A;
+      font-size: 22px; cursor: pointer; min-width: 44px; min-height: 44px;
+      border-radius: 10px; align-items: center; justify-content: center; transition: 0.2s;
+    }
+    .mobile-toggle:active { background: #E2E8F0; }
 
     .view-toggle { display: flex; gap: 6px; background: #F1F5F9; padding: 4px; border-radius: 8px; }
     .toggle-btn {
@@ -139,6 +148,8 @@
 
     /* AJUSTES RESPONSIVOS (MOBILE < 768px) */
     @media (max-width: 768px) {
+      .mobile-toggle { display: flex; }
+
       .sidebar {
         top: 0; left: 0; height: 100dvh; width: 280px; border-radius: 0 18px 18px 0;
         transform: translateX(-100%); z-index: 1000;
@@ -190,9 +201,15 @@
   <!-- PAINEL PRINCIPAL -->
   <main class="home-section">
     <header class="header-bar">
-      <div class="header-title">
-        <h1 id="modulo-titulo">Biblioteca</h1>
-        <p id="modulo-subtitulo">Consulta de acervo e materiais técnicos.</p>
+      <div class="header-left">
+        <!-- BOTÃO PARA ABRIR O MENU NO MÓVEL -->
+        <button class="mobile-toggle" id="mobile-toggle-btn" aria-label="Abrir Menu">
+          <i class='bx bx-menu'></i>
+        </button>
+        <div class="header-title">
+          <h1 id="modulo-titulo">Biblioteca</h1>
+          <p id="modulo-subtitulo">Consulta de acervo e materiais técnicos.</p>
+        </div>
       </div>
       
       <div class="view-toggle">
@@ -255,6 +272,7 @@
     const backdrop = document.getElementById('backdrop');
     const container = document.getElementById('pdf-container');
     const searchInput = document.getElementById('search-input');
+    const mobileToggleBtn = document.getElementById('mobile-toggle-btn');
 
     function renderizarMenu() {
       const menuContainer = document.getElementById('menu-list');
@@ -450,12 +468,17 @@
     });
 
     /* CONTROLES DE SIDEBAR MÓVEL */
-    document.getElementById('btn').addEventListener('click', () => {
+    function alternarMenu() {
       sidebar.classList.toggle('open');
       if (window.innerWidth <= 768) {
         backdrop.classList.toggle('active', sidebar.classList.contains('open'));
       }
-    });
+    }
+
+    document.getElementById('btn').addEventListener('click', alternarMenu);
+    if (mobileToggleBtn) {
+      mobileToggleBtn.addEventListener('click', alternarMenu);
+    }
 
     backdrop.addEventListener('click', fecharMenuMobile);
 
