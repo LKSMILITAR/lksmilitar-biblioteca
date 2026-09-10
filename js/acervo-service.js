@@ -1,5 +1,5 @@
 const AcervoService = (function () {
-  const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbyyir_RkIgKWsheGHPmSaxPPDTAXfTDbn-UpjqzvlOjdzkD4aRHTZQsMxYQH2rSL9o9/exec";
+  const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbeIIE-Mne-KaNE_6c-OIKnX1909IPuBFk9njbS3YRTNrmA72K1sIR009kqXSgy8/exec";
 
   async function obterModulo(idPasta) {
     const chaveCache = `lks_cache_${idPasta}`;
@@ -17,7 +17,7 @@ const AcervoService = (function () {
 
     try {
       const resposta = await fetch(urlComParametro);
-
+      
       if (!resposta.ok) {
         throw new Error("Erro de comunicação com o servidor de armazenamento.");
       }
@@ -40,7 +40,7 @@ const AcervoService = (function () {
       sessionStorage.setItem(chaveCache, JSON.stringify(arquivosPDF));
       return arquivosPDF;
     } catch (erro) {
-      throw erro;
+      throw new Error("Não foi possível conectar ao servidor. Verifique a conexão ou tente novamente.");
     }
   }
 
