@@ -6,13 +6,12 @@
   <title>LKSMILITAR - Biblioteca Técnica</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   <link href="https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Inter", sans-serif; }
     body { background: #EFEFF3; color: #1A1D20; min-height: 100dvh; overflow-x: hidden; }
 
-    /* NAVEGAÇÃO / SIDEBAR (DESKTOP) */
+    /* BARRA LATERAL FLUTUANTE (DESKTOP) */
     .sidebar {
       position: fixed; top: 12px; left: 12px;
       height: calc(100dvh - 24px); width: 78px;
@@ -54,14 +53,14 @@
     .sidebar .profile .job { font-size: 10px; color: #64748B; opacity: 0; transition: opacity 0.3s ease; }
     .sidebar.open .profile .name, .sidebar.open .profile .job { opacity: 1; }
 
-    /* BACKDROP DE MENU MÓVEL */
+    /* BACKDROP DO MENU MÓVEL */
     .sidebar-backdrop {
       position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4);
       backdrop-filter: blur(2px); z-index: 98; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
     }
     .sidebar-backdrop.active { opacity: 1; pointer-events: auto; }
 
-    /* CONTEÚDO PRINCIPAL (MAIN) */
+    /* PAINEL CENTRAL */
     .home-section { margin-left: 102px; padding: 24px 32px; transition: margin-left 0.35s ease; }
     .sidebar.open ~ .home-section { margin-left: 298px; }
 
@@ -74,7 +73,6 @@
     .header-title h1 { font-size: 18px; font-weight: 700; color: #0F172A; }
     .header-title p { font-size: 13px; color: #64748B; }
 
-    /* BOTÃO DE MENU VISÍVEL APENAS NO CELULAR */
     .mobile-toggle {
       display: none; border: 1px solid #E2E8F0; background: #F8FAFC; color: #0F172A;
       font-size: 22px; cursor: pointer; min-width: 44px; min-height: 44px;
@@ -89,30 +87,30 @@
     }
     .toggle-btn.active { background: #FFFFFF; color: #0F172A; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
-    /* CONTAINER E CARDS (GRADE) */
+    /* LAYOUT GRADE */
     .pdf-container.grid-mode { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
     .pdf-container.grid-mode .pdf-card {
       background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 14px;
       display: flex; flex-direction: column; align-items: center; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer;
     }
     .pdf-container.grid-mode .pdf-card:hover { transform: translateY(-3px); box-shadow: 0 8px 16px rgba(0,0,0,0.05); }
-    .pdf-container.grid-mode .canvas-wrapper {
+    .pdf-container.grid-mode .cover-wrapper {
       width: 100%; height: 190px; background: #F8FAFC; border-radius: 8px;
       display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid #F1F5F9; margin-bottom: 12px;
     }
-    .pdf-container.grid-mode canvas { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .pdf-container.grid-mode .cover-img { width: 100%; height: 100%; object-fit: contain; }
     .pdf-container.grid-mode .pdf-title { font-size: 13px; font-weight: 600; color: #1E293B; text-align: center; word-break: break-word; }
     .pdf-container.grid-mode .pdf-meta { font-size: 11px; color: #64748B; margin-top: 4px; }
 
-    /* CONTAINER E CARDS (LISTA) */
+    /* LAYOUT LISTA */
     .pdf-container.list-mode { display: flex; flex-direction: column; gap: 10px; }
     .pdf-container.list-mode .pdf-card {
       background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 10px; padding: 10px 16px;
       display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer;
     }
     .pdf-container.list-mode .list-left { display: flex; align-items: center; gap: 14px; min-width: 0; flex: 1; }
-    .pdf-container.list-mode .canvas-wrapper { width: 36px; height: 48px; background: #F8FAFC; border-radius: 4px; overflow: hidden; border: 1px solid #E2E8F0; flex-shrink: 0; }
-    .pdf-container.list-mode canvas { width: 100%; height: 100%; object-fit: cover; }
+    .pdf-container.list-mode .cover-wrapper { width: 36px; height: 48px; background: #F8FAFC; border-radius: 4px; overflow: hidden; border: 1px solid #E2E8F0; flex-shrink: 0; }
+    .pdf-container.list-mode .cover-img { width: 100%; height: 100%; object-fit: cover; }
     .pdf-container.list-mode .pdf-info { min-width: 0; flex: 1; }
     .pdf-container.list-mode .pdf-title { font-size: 13.5px; font-weight: 500; color: #1E293B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .pdf-container.list-mode .pdf-meta { font-size: 11px; color: #64748B; }
@@ -128,7 +126,7 @@
     .page-btn.active { background: #0F172A; color: #FFFFFF; border-color: #0F172A; }
     .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* LEITOR DE PDF (MODAL COMPLETO) */
+    /* LEITOR DE PDF (MODAL) */
     .modal-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
       background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 999;
@@ -146,7 +144,7 @@
     .modal-body { flex: 1; width: 100%; height: 100%; background: #121212; position: relative; }
     .modal-body iframe { width: 100%; height: 100%; border: none; }
 
-    /* AJUSTES RESPONSIVOS (MOBILE < 768px) */
+    /* REGRA MÓVEL (< 768px) */
     @media (max-width: 768px) {
       .mobile-toggle { display: flex; }
 
@@ -169,10 +167,8 @@
 </head>
 <body>
 
-  <!-- BACKDROP PARA FECHAR MENU NO MOBILE -->
   <div class="sidebar-backdrop" id="backdrop"></div>
 
-  <!-- NAVEGAÇÃO LATERAL -->
   <nav class="sidebar" id="sidebar">
     <div class="logo-details">
       <i class='bx bxs-paper-plane icon'></i>
@@ -198,11 +194,9 @@
     </div>
   </nav>
 
-  <!-- PAINEL PRINCIPAL -->
   <main class="home-section">
     <header class="header-bar">
       <div class="header-left">
-        <!-- BOTÃO PARA ABRIR O MENU NO MÓVEL -->
         <button class="mobile-toggle" id="mobile-toggle-btn" aria-label="Abrir Menu">
           <i class='bx bx-menu'></i>
         </button>
@@ -222,7 +216,6 @@
     <nav id="pagination-container" class="pagination-wrapper"></nav>
   </main>
 
-  <!-- MODAL DO LEITOR DE PDF -->
   <div id="modal-viewer" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <div class="modal-content">
       <header class="modal-header">
@@ -240,8 +233,6 @@
 
   <script src="js/acervo-service.js"></script>
   <script>
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
     const modulos = [
       { id: "biblioteca", nome: "Biblioteca", icon: "bx-folder" },
       { id: "termodinamica", nome: "Termodinâmica", icon: "bx-current-location" },
@@ -333,7 +324,7 @@
       container.innerHTML = '';
 
       if (listaFiltradaPDFs.length === 0) {
-        container.innerHTML = '<p style="color:#64748B; font-size:14px;">Nenhum documento encontrado.</p>';
+        container.innerHTML = '<p style="color:#64748B; font-size:14px;">Nenhum documento encontrado neste módulo.</p>';
         document.getElementById('pagination-container').innerHTML = '';
         return;
       }
@@ -342,15 +333,14 @@
       const fim = paginaAtual * itensPorPagina;
       const pdfsDaPagina = listaFiltradaPDFs.slice(inicio, fim);
 
-      pdfsDaPagina.forEach((pdf, index) => {
-        const canvasId = `canvas-pdf-${index}`;
+      pdfsDaPagina.forEach((pdf) => {
         const card = document.createElement('div');
         card.className = 'pdf-card';
 
         card.innerHTML = `
           <div class="list-left">
-            <div class="canvas-wrapper">
-              <canvas id="${canvasId}"></canvas>
+            <div class="cover-wrapper">
+              <img src="${pdf.capaUrl}" alt="Capa de ${pdf.nome}" class="cover-img" loading="lazy" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\' viewBox=\'0 0 24 24\' fill=\'%2364748B\'><path d=\'M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6H6zm7 7V3.5L18.5 9H13z\'/></svg>'">
             </div>
             <div class="pdf-info">
               <div class="pdf-title">${pdf.nome}</div>
@@ -360,33 +350,11 @@
           <div class="btn-open">Abrir</div>
         `;
 
-        card.addEventListener('click', () => abrirLeitorPDF(pdf.nome, pdf.downloadUrl));
+        card.addEventListener('click', () => abrirLeitorPDF(pdf.nome, pdf.previewUrl, pdf.downloadUrl));
         container.appendChild(card);
-
-        setTimeout(() => {
-          const canvas = document.getElementById(canvasId);
-          if (canvas) renderizarCapaCanvas(pdf.downloadUrl, canvas);
-        }, 50);
       });
 
       renderizarControlesPaginacao();
-    }
-
-    async function renderizarCapaCanvas(url, canvas) {
-      try {
-        const loadingTask = pdfjsLib.getDocument(url);
-        const pdfDoc = await loadingTask.promise;
-        const page = await pdfDoc.getPage(1);
-
-        const viewport = page.getViewport({ scale: 0.4 });
-        const context = canvas.getContext('2d');
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-
-        await page.render({ canvasContext: context, viewport: viewport }).promise;
-      } catch (erro) {
-        console.warn("Capa indisponível para renderização leve.");
-      }
     }
 
     function renderizarControlesPaginacao() {
@@ -413,12 +381,11 @@
       window.scrollTo({ top: 0, behavior: 'instant' });
     }
 
-    /* SISTEMA DE MODAL & HISTORY API */
-    function abrirLeitorPDF(nome, url) {
+    function abrirLeitorPDF(nome, previewUrl, downloadUrl) {
       modalAberto = true;
       document.getElementById('modal-title').innerText = nome;
-      document.getElementById('modal-download').href = url;
-      document.getElementById('pdf-iframe').src = `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
+      document.getElementById('modal-download').href = downloadUrl;
+      document.getElementById('pdf-iframe').src = previewUrl;
       
       document.getElementById('modal-viewer').classList.add('active');
       history.pushState({ modal: true, modulo: moduloAtivo }, '', `#pdf-view`);
@@ -437,7 +404,6 @@
 
     document.getElementById('modal-close-btn').addEventListener('click', () => fecharLeitorPDF(true));
 
-    /* GESTÃO DO BOTÃO VOLTAR (POPSTATE) */
     window.addEventListener('popstate', (e) => {
       if (modalAberto) {
         fecharLeitorPDF(false);
@@ -452,14 +418,12 @@
       }
     });
 
-    /* TECLA ESCAPE PARA FECHAR MODAL */
     window.addEventListener('keyup', (e) => {
       if (e.key === 'Escape' && modalAberto) {
         fecharLeitorPDF(true);
       }
     });
 
-    /* FILTRO DE BUSCA */
     searchInput.addEventListener('input', (e) => {
       const termo = e.target.value.toLowerCase().trim();
       listaFiltradaPDFs = listaCompletaPDFs.filter(pdf => pdf.nome.toLowerCase().includes(termo));
@@ -467,7 +431,6 @@
       renderizarPaginaAtual();
     });
 
-    /* CONTROLES DE SIDEBAR MÓVEL */
     function alternarMenu() {
       sidebar.classList.toggle('open');
       if (window.innerWidth <= 768) {
@@ -494,8 +457,8 @@
       container.className = 'pdf-container list-mode';
     });
 
-    /* INICIALIZAÇÃO COM ROTEAMENTO DE HASH */
     document.addEventListener("DOMContentLoaded", () => {
+      sessionStorage.clear();
       const hashInicial = location.hash.replace('#', '');
       const moduloInicial = modulos.some(m => m.id === hashInicial) ? hashInicial : 'biblioteca';
       carregarModulo(moduloInicial);
