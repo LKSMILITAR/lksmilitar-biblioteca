@@ -6,306 +6,120 @@
   <title>LKSMILITAR - Biblioteca Técnica</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   <link href="https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: "Inter", sans-serif;
-    }
-    body {
-      background: #EFEFF3;
-      color: #1A1D20;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Inter", sans-serif; }
+    body { background: #EFEFF3; color: #1A1D20; min-height: 100vh; overflow-x: hidden; }
 
     /* PAINEL FLUTUANTE DE NAVEGAÇÃO */
     .sidebar {
-      position: fixed;
-      top: 12px;
-      left: 12px;
-      height: calc(100vh - 24px);
-      width: 78px;
-      background: #FFFFFF;
-      border-radius: 18px;
-      border: 1px solid #E2E8F0;
+      position: fixed; top: 12px; left: 12px;
+      height: calc(100vh - 24px); width: 78px;
+      background: #FFFFFF; border-radius: 18px; border: 1px solid #E2E8F0;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-      padding: 10px 12px;
-      z-index: 99;
-      transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
-      display: flex;
-      flex-direction: column;
-    }
-    .sidebar.open {
-      width: 270px;
-    }
-
-    /* CABEÇALHO DO PAINEL */
-    .sidebar .logo-details {
-      height: 52px;
-      display: flex;
-      align-items: center;
-      position: relative;
-      margin-bottom: 8px;
-    }
-    .sidebar .logo-details .icon {
-      color: #1A1D20;
-      font-size: 24px;
-      min-width: 50px;
-      text-align: center;
-    }
-    .sidebar .logo-details .logo_name {
-      color: #1A1D20;
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      white-space: nowrap;
-    }
-    .sidebar.open .logo-details .logo_name {
-      opacity: 1;
-    }
-    .sidebar .logo-details #btn {
-      position: absolute;
-      top: 50%;
-      right: 0;
-      transform: translateY(-50%);
-      font-size: 20px;
-      color: #718096;
-      cursor: pointer;
-      text-align: center;
-      min-width: 50px;
-      transition: color 0.2s;
-    }
-    .sidebar .logo-details #btn:hover {
-      color: #1A1D20;
-    }
-
-    /* LISTA DE NAVEGAÇÃO ISOLADA */
-    .sidebar .nav-list {
-      flex: 1;
-      overflow-y: auto;
-      overflow-x: hidden;
-      margin-top: 4px;
-    }
-    .sidebar .nav-list::-webkit-scrollbar {
-      width: 3px;
-    }
-    .sidebar .nav-list::-webkit-scrollbar-thumb {
-      background: #CBD5E0;
-      border-radius: 3px;
-    }
-    .sidebar li {
-      position: relative;
-      margin: 4px 0;
-      list-style: none;
-    }
-
-    /* TOOLTIP EM MODO COMPACTO */
-    .sidebar li .tooltip {
-      position: absolute;
-      top: -20px;
-      left: calc(100% + 15px);
-      z-index: 3;
-      background: #1A1D20;
-      color: #FFF;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      padding: 6px 10px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 500;
-      opacity: 0;
-      white-space: nowrap;
-      pointer-events: none;
-      transition: 0s;
-    }
-    .sidebar li:hover .tooltip {
-      opacity: 1;
-      pointer-events: auto;
-      transition: all 0.25s ease;
-      top: 50%;
-      transform: translateY(-50%);
-    }
-    .sidebar.open li .tooltip {
-      display: none;
-    }
-
-    /* CAMPO DE BUSCA */
-    .sidebar input {
-      font-size: 13px;
-      color: #1A1D20;
-      font-weight: 400;
-      outline: none;
-      height: 40px;
-      width: 50px;
-      border: 1px solid #E2E8F0;
-      border-radius: 10px;
+      padding: 10px 12px; z-index: 99;
       transition: all 0.35s ease;
-      background: #F7FAFC;
-      padding-left: 48px;
+      display: flex; flex-direction: column;
     }
-    .sidebar.open input {
-      width: 100%;
-      padding: 0 12px 0 48px;
-    }
-    .sidebar .bx-search {
-      position: absolute;
-      top: 50%;
-      left: 0;
-      transform: translateY(-50%);
-      font-size: 18px;
-      background: #F7FAFC;
-      color: #718096;
-      height: 40px;
-      line-height: 40px;
-      width: 50px;
-      text-align: center;
-      border-radius: 10px;
-      cursor: pointer;
-    }
+    .sidebar.open { width: 270px; }
+    .sidebar .logo-details { height: 52px; display: flex; align-items: center; position: relative; }
+    .sidebar .logo-details .icon { color: #1A1D20; font-size: 24px; min-width: 50px; text-align: center; }
+    .sidebar .logo-details .logo_name { color: #1A1D20; font-size: 15px; font-weight: 700; opacity: 0; transition: 0.3s; white-space: nowrap; }
+    .sidebar.open .logo-details .logo_name { opacity: 1; }
+    .sidebar .logo-details #btn { position: absolute; right: 0; font-size: 20px; color: #718096; cursor: pointer; min-width: 50px; text-align: center; }
 
-    /* LINKS DO MENU */
-    .sidebar li a {
-      display: flex;
-      height: 40px;
-      width: 100%;
-      border-radius: 10px;
-      align-items: center;
-      text-decoration: none;
-      transition: all 0.2s ease;
-      background: transparent;
-    }
-    .sidebar li a:hover {
-      background: #F1F5F9;
-    }
-    .sidebar li a:hover .links_name,
-    .sidebar li a:hover i {
-      color: #0F172A;
-    }
-    .sidebar li i {
-      height: 40px;
-      min-width: 50px;
-      font-size: 18px;
-      text-align: center;
-      line-height: 40px;
-      color: #64748B;
-      transition: color 0.2s;
-    }
-    .sidebar li a .links_name {
-      color: #334155;
-      font-size: 13px;
-      font-weight: 500;
-      white-space: nowrap;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-    .sidebar.open li a .links_name {
-      opacity: 1;
-      pointer-events: auto;
-    }
+    .sidebar .nav-list { flex: 1; overflow-y: auto; overflow-x: hidden; margin-top: 8px; }
+    .sidebar .nav-list::-webkit-scrollbar { width: 3px; }
+    .sidebar .nav-list::-webkit-scrollbar-thumb { background: #CBD5E0; border-radius: 3px; }
+    .sidebar li { position: relative; margin: 4px 0; list-style: none; }
+    .sidebar li a { display: flex; height: 40px; width: 100%; border-radius: 10px; align-items: center; text-decoration: none; transition: 0.2s; cursor: pointer; }
+    .sidebar li a:hover, .sidebar li a.active { background: #F1F5F9; }
+    .sidebar li i { height: 40px; min-width: 50px; font-size: 18px; text-align: center; line-height: 40px; color: #64748B; }
+    .sidebar li a .links_name { color: #334155; font-size: 13px; font-weight: 500; opacity: 0; white-space: nowrap; transition: 0.3s; }
+    .sidebar.open li a .links_name { opacity: 1; }
 
-    /* RODAPÉ DO PAINEL */
     .sidebar .profile {
-      height: 48px;
-      width: 100%;
-      background: #F8FAFC;
-      border-radius: 10px;
-      border: 1px solid #E2E8F0;
-      display: flex;
-      align-items: center;
-      padding: 0 6px;
-      position: relative;
-      overflow: hidden;
-      margin-top: 8px;
+      height: 48px; width: 100%; background: #F8FAFC; border-radius: 10px; border: 1px solid #E2E8F0;
+      display: flex; align-items: center; padding: 0 6px; position: relative; overflow: hidden; margin-top: 8px;
     }
-    .sidebar .profile .profile-details {
-      display: flex;
-      align-items: center;
-      white-space: nowrap;
-    }
-    .sidebar .profile .name {
-      font-size: 12px;
-      font-weight: 600;
-      color: #1E293B;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    .sidebar .profile .job {
-      font-size: 10px;
-      color: #64748B;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    .sidebar.open .profile .name,
-    .sidebar.open .profile .job {
-      opacity: 1;
-    }
-    .sidebar .profile #log_out {
-      position: absolute;
-      right: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 40px;
-      height: 40px;
-      line-height: 40px;
-      text-align: center;
-      color: #64748B;
-      cursor: pointer;
-    }
+    .sidebar .profile .name { font-size: 12px; font-weight: 600; color: #1E293B; opacity: 0; transition: opacity 0.3s ease; }
+    .sidebar .profile .job { font-size: 10px; color: #64748B; opacity: 0; transition: opacity 0.3s ease; }
+    .sidebar.open .profile .name, .sidebar.open .profile .job { opacity: 1; }
 
-    /* ÁREA PRINCIPAL DO CONTEÚDO */
-    .home-section {
-      position: relative;
-      margin-left: 102px;
-      min-height: 100vh;
-      transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
-      padding: 24px 32px 32px 16px;
+    /* CONTEÚDO PRINCIPAL */
+    .home-section { margin-left: 102px; padding: 24px 32px; transition: all 0.35s ease; }
+    .sidebar.open ~ .home-section { margin-left: 298px; }
+
+    .header-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 24px; background: #FFFFFF; padding: 16px 24px;
+      border-radius: 14px; border: 1px solid #E2E8F0;
     }
-    .sidebar.open ~ .home-section {
-      margin-left: 298px;
+    .header-title h1 { font-size: 18px; font-weight: 700; color: #0F172A; }
+    .header-title p { font-size: 13px; color: #64748B; }
+
+    .view-toggle { display: flex; gap: 6px; background: #F1F5F9; padding: 4px; border-radius: 8px; }
+    .toggle-btn {
+      border: none; background: transparent; padding: 6px 12px; border-radius: 6px;
+      cursor: pointer; color: #64748B; font-size: 18px; display: flex; align-items: center; transition: 0.2s;
     }
-    .header-title {
-      font-size: 20px;
-      font-weight: 700;
-      color: #0F172A;
-      margin-bottom: 4px;
+    .toggle-btn.active { background: #FFFFFF; color: #0F172A; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+    /* LAYOUT GRADE */
+    .pdf-container.grid-mode { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+    .pdf-container.grid-mode .pdf-card {
+      background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 14px;
+      display: flex; flex-direction: column; align-items: center; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer;
     }
-    .header-subtitle {
-      color: #64748B;
-      font-size: 13px;
+    .pdf-container.grid-mode .pdf-card:hover { transform: translateY(-3px); box-shadow: 0 8px 16px rgba(0,0,0,0.05); }
+    .pdf-container.grid-mode .canvas-wrapper {
+      width: 100%; height: 190px; background: #F8FAFC; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid #F1F5F9; margin-bottom: 12px;
     }
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 16px;
-      margin-top: 20px;
+    .pdf-container.grid-mode canvas { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .pdf-container.grid-mode .pdf-title { font-size: 13px; font-weight: 600; color: #1E293B; text-align: center; word-break: break-word; }
+
+    /* LAYOUT LISTA */
+    .pdf-container.list-mode { display: flex; flex-direction: column; gap: 10px; }
+    .pdf-container.list-mode .pdf-card {
+      background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 10px; padding: 10px 16px;
+      display: flex; align-items: center; justify-content: space-between; cursor: pointer;
     }
-    .card {
-      background: #FFFFFF;
-      border: 1px solid #E2E8F0;
-      padding: 20px;
-      border-radius: 14px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    .pdf-container.list-mode .list-left { display: flex; align-items: center; gap: 14px; }
+    .pdf-container.list-mode .canvas-wrapper { width: 36px; height: 48px; background: #F8FAFC; border-radius: 4px; overflow: hidden; border: 1px solid #E2E8F0; flex-shrink: 0; }
+    .pdf-container.list-mode canvas { width: 100%; height: 100%; object-fit: cover; }
+    .pdf-container.list-mode .pdf-title { font-size: 13.5px; font-weight: 500; color: #1E293B; }
+    .pdf-container.list-mode .btn-open { font-size: 12px; font-weight: 600; color: #2563EB; background: #EFF6FF; padding: 6px 12px; border-radius: 6px; }
+
+    /* PAGINAÇÃO */
+    .pagination-wrapper { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 32px; }
+    .page-btn {
+      background: #FFFFFF; border: 1px solid #E2E8F0; color: #475569; padding: 8px 14px;
+      border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; transition: 0.2s;
     }
-    .card h3 {
-      font-size: 14px;
-      color: #1E293B;
-      margin-bottom: 6px;
-      font-weight: 600;
+    .page-btn:hover:not(:disabled) { background: #F1F5F9; color: #0F172A; }
+    .page-btn.active { background: #0F172A; color: #FFFFFF; border-color: #0F172A; }
+    .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* MODAL GOOGLE VIEWER */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 999;
+      display: none; align-items: center; justify-content: center;
     }
-    .card p {
-      font-size: 12.5px;
-      color: #64748B;
-      line-height: 1.5;
-    }
+    .modal-overlay.active { display: flex; }
+    .modal-content { background: #FFFFFF; width: 90vw; height: 90vh; border-radius: 16px; display: flex; flex-direction: column; overflow: hidden; }
+    .modal-header { padding: 14px 20px; background: #F8FAFC; border-bottom: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center; }
+    .modal-header h3 { font-size: 14px; color: #0F172A; font-weight: 600; }
+    .modal-close { background: transparent; border: none; font-size: 22px; color: #64748B; cursor: pointer; }
+    .modal-body { flex: 1; width: 100%; height: 100%; }
+    .modal-body iframe { width: 100%; height: 100%; border: none; }
   </style>
 </head>
 <body>
 
-  <!-- PAINEL FLUTUANTE -->
+  <!-- BARRA LATERAL FLUTUANTE -->
   <div class="sidebar">
     <div class="logo-details">
       <i class='bx bxs-paper-plane icon'></i>
@@ -313,125 +127,8 @@
       <i class='bx bx-menu' id="btn"></i>
     </div>
     
-    <ul class="nav-list">
-      <li>
-        <i class='bx bx-search'></i>
-        <input type="text" placeholder="Pesquisar...">
-        <span class="tooltip">Pesquisar</span>
-      </li>
-
-      <li>
-        <a href="#">
-          <i class='bx bx-folder'></i>
-          <span class="links_name">Biblioteca</span>
-        </a>
-        <span class="tooltip">Biblioteca</span>
-      </li>
-      <li>
-        <a href="#">
-          <i class='bx bx-current-location'></i>
-          <span class="links_name">Termodinâmica</span>
-        </a>
-        <span class="tooltip">Termodinâmica</span>
-      </li>
-      <li>
-        <a href="#">
-          <i class='bx bx-bolt-circle'></i>
-          <span class="links_name">Eletrodinâmica</span>
-        </a>
-        <span class="tooltip">Eletrodinâmica</span>
-      </li>
-      <li>
-        <a href="#">
-          <i class='bx bx-wind'></i>
-          <span class="links_name">Aerodinâmica</span>
-        </a>
-        <span class="tooltip">Aerodinâmica</span>
-      </li>
-      <li>
-        <a href="#">
-          <i class='bx bx-tachometer'></i>
-          <span class="links_name">Propulsão</span>
-        </a>
-        <span class="tooltip">Propulsão</span>
-      </li>
-      <li>
-        <a href="#">
-          <i class='bx bx-cube-alt'></i>
-          <span class="links_name">Estruturas</span>
-        </a>
-        <span class="tooltip">Estruturas</span>
-      </li>
-      <li>
-        <a href="#">
-          <i class='bx bx-layer'></i>
-          <span class="links_name">Materiais</span>
-        </a>
-        <span class="tooltip">Materiais</span>
-      </li>
-      <li>
-        <a href="#">
-          <i class='bx bx-chip'></i>
-          <span class="links_name">Eletrônica</span>
-        </a>
-        <span class="tooltip">Eletrônica</span>
-      </li>
-      <li>
-        <a href="#">
-          <i class='bx bx-target-lock'></i>
-          <span class="links_name">Sistemas de Armas</span>
-        </a>
-        <span class="tooltip">Sistemas de Armas</span>
-      </li>
-      <li>
-        <a href="#">
-          <i class='bx bx-radar'></i>
-          <span class="links_name">Radar e Guerra Eletrônica</span>
-        </a>
-        <span class="tooltip">Radar e Guerra Eletrônica</span>
-      </li>
-      <li>
-        <a href="#">
-          <i class='bx bx-show-alt'></i>
-          <span class="links_name">Inteligência e Vigilância</span>
-        </a>
-        <span class="tooltip">Inteligência e Vigilância</span>
-      </li>
-      <li>
-        <a href="#">
-          <i class='bx bx-package'></i>
-          <span class="links_name">Logística e Suprimento</span>
-        </a>
-        <span class="tooltip">Logística e Suprimento</span>
-      </li>
-      <li>
-        <a href="#">
-          <i class='bx bx-book-alt'></i>
-          <span class="links_name">História Militar</span>
-        </a>
-        <span class="tooltip">História Militar</span>
-      </li>
-      <li>
-        <a href="#">
-          <i class='bx bx-file'></i>
-          <span class="links_name">Manuais Técnicos</span>
-        </a>
-        <span class="tooltip">Manuais Técnicos</span>
-      </li>
-      <li>
-        <a href="#">
-          <i class='bx bx-detail'></i>
-          <span class="links_name">Documentos Oficiais</span>
-        </a>
-        <span class="tooltip">Documentos Oficiais</span>
-      </li>
-      <li>
-        <a href="#">
-          <i class='bx bx-slider-alt'></i>
-          <span class="links_name">Projetos e Simuladores</span>
-        </a>
-        <span class="tooltip">Projetos e Simuladores</span>
-      </li>
+    <ul class="nav-list" id="menu-list">
+      <!-- Links dinâmicos injetados no script -->
     </ul>
 
     <div class="profile">
@@ -442,52 +139,238 @@
           <div class="job">Biblioteca Técnica</div>
         </div>
       </div>
-      <i class='bx bx-log-out' id="log_out"></i>
     </div>
   </div>
 
+  <!-- PAINEL CENTRAL -->
   <section class="home-section">
-    <div class="header-title">Biblioteca Técnica</div>
-    <div class="header-subtitle">Acervo digital de consulta para engenharia e estudos aplicados.</div>
-
-    <div class="dashboard-grid">
-      <div class="card">
-        <h3>Radar e Guerra Eletrônica</h3>
-        <p>Documentação sobre modelos de emissão, propagação e análise de sinais.</p>
+    <div class="header-bar">
+      <div class="header-title">
+        <h1 id="modulo-titulo">Biblioteca</h1>
+        <p id="modulo-subtitulo">Consulta de acervo e materiais técnicos.</p>
       </div>
-      <div class="card">
-        <h3>Manuais e Documentos</h3>
-        <p>Acesso ao catálogo de especificações técnicas e materiais de referência.</p>
-      </div>
-      <div class="card">
-        <h3>Simuladores</h3>
-        <p>Ferramentas de cálculo e modelos computacionais disponíveis para pesquisa.</p>
+      
+      <div class="view-toggle">
+        <button class="toggle-btn active" id="btn-grid"><i class='bx bx-grid-alt'></i></button>
+        <button class="toggle-btn" id="btn-list"><i class='bx bx-list-ul'></i></button>
       </div>
     </div>
+
+    <div id="pdf-container" class="pdf-container grid-mode"></div>
+    <div id="pagination-container" class="pagination-wrapper"></div>
   </section>
 
+  <!-- MODAL DE VISUALIZAÇÃO LEVE -->
+  <div id="modal-viewer" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title">Documento</h3>
+        <button class="modal-close" id="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <iframe id="pdf-iframe" src="about:blank"></iframe>
+      </div>
+    </div>
+  </div>
+
   <script>
-    const sidebar = document.querySelector(".sidebar");
-    const closeBtn = document.querySelector("#btn");
-    const searchBtn = document.querySelector(".bx-search");
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-    closeBtn.addEventListener("click", () => {
-      sidebar.classList.toggle("open");
-      menuBtnChange();
-    });
+    const REPO_USUARIO = "LKSMILITAR";
+    const REPO_NOME = "lksmilitar-biblioteca";
 
-    searchBtn.addEventListener("click", () => {
-      sidebar.classList.toggle("open");
-      menuBtnChange();
-    });
+    // 16 Categorias registradas
+    const modulos = [
+      { id: "biblioteca", nome: "Biblioteca", icon: "bx-folder" },
+      { id: "termodinamica", nome: "Termodinâmica", icon: "bx-current-location" },
+      { id: "eletrodinamica", nome: "Eletrodinâmica", icon: "bx-bolt-circle" },
+      { id: "aerodinamica", nome: "Aerodinâmica", icon: "bx-wind" },
+      { id: "propulsao", nome: "Propulsão", icon: "bx-tachometer" },
+      { id: "estruturas", nome: "Estruturas", icon: "bx-cube-alt" },
+      { id: "materiais", nome: "Materiais", icon: "bx-layer" },
+      { id: "eletronica", nome: "Eletrônica", icon: "bx-chip" },
+      { id: "sistemas-de-armas", nome: "Sistemas de Armas", icon: "bx-target-lock" },
+      { id: "radar-e-guerra-eletronica", nome: "Radar e Guerra Eletrônica", icon: "bx-radar" },
+      { id: "inteligencia-e-vigilancia", nome: "Inteligência e Vigilância", icon: "bx-show-alt" },
+      { id: "logistica-e-suprimento", nome: "Logística e Suprimento", icon: "bx-package" },
+      { id: "historia-militar", nome: "História Militar", icon: "bx-book-alt" },
+      { id: "manuais-tecnicos", nome: "Manuais Técnicos", icon: "bx-file" },
+      { id: "documentos-oficiais", nome: "Documentos Oficiais", icon: "bx-detail" },
+      { id: "projetos-e-simuladores", nome: "Projetos e Simuladores", icon: "bx-slider-alt" }
+    ];
 
-    function menuBtnChange() {
-      if (sidebar.classList.contains("open")) {
-        closeBtn.classList.replace("bx-menu", "bx-menu-alt-right");
-      } else {
-        closeBtn.classList.replace("bx-menu-alt-right", "bx-menu");
+    let listaCompletaPDFs = [];
+    let paginaAtual = 1;
+    const itensPorPagina = 8;
+    let moduloAtivo = "biblioteca";
+
+    // Monta o Menu Lateral
+    function renderizarMenu() {
+      const menuContainer = document.getElementById('menu-list');
+      menuContainer.innerHTML = '';
+
+      modulos.forEach(m => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <a class="${m.id === moduloAtivo ? 'active' : ''}" onclick="trocarModulo('${m.id}', '${m.nome}')">
+            <i class='bx ${m.icon}'></i>
+            <span class="links_name">${m.nome}</span>
+          </a>
+        `;
+        menuContainer.appendChild(li);
+      });
+    }
+
+    // Troca de módulo sem recarregar a tela (SPA)
+    function trocarModulo(idPasta, nomeModulo) {
+      moduloAtivo idPasta;
+      document.getElementById('modulo-titulo').innerText = nomeModulo;
+      document.getElementById('modulo-subtitulo').innerText = `Consulta de acervo e materiais técnicos do módulo ${nomeModulo}.`;
+      renderizarMenu();
+      carregarAcervoModulo(idPasta);
+    }
+
+    // Consulta API do GitHub
+    async function carregarAcervoModulo(nomeDaPasta) {
+      const container = document.getElementById('pdf-container');
+      container.innerHTML = '<p style="color:#64748B; font-size:14px;">Consultando biblioteca...</p>';
+
+      const urlAPI = `https://api.github.com/repos/${REPO_USUARIO}/${REPO_NOME}/contents/acervo/${nomeDaPasta}`;
+
+      try {
+        const resposta = await fetch(urlAPI);
+        if (!resposta.ok) throw new Error("Pasta vazia ou indisponível.");
+
+        const arquivos = await resposta.json();
+        listaCompletaPDFs = arquivos.filter(arq => arq.name.toLowerCase().endsWith('.pdf'));
+
+        if (listaCompletaPDFs.length === 0) {
+          container.innerHTML = '<p style="color:#64748B; font-size:14px;">Nenhum documento cadastrado neste módulo.</p>';
+          document.getElementById('pagination-container').innerHTML = '';
+          return;
+        }
+
+        paginaAtual = 1;
+        renderizarPaginaAtual();
+      } catch (erro) {
+        container.innerHTML = `<p style="color:#64748B; font-size:14px;">Nenhum arquivo encontrado na pasta <b>acervo/${nomeDaPasta}</b>.</p>`;
+        document.getElementById('pagination-container').innerHTML = '';
       }
     }
+
+    // Paginação e Exibição de Capas
+    function renderizarPaginaAtual() {
+      const container = document.getElementById('pdf-container');
+      container.innerHTML = '';
+
+      const inicio = (paginaAtual - 1) * itensPorPagina;
+      const fim = paginaAtual * itensPorPagina;
+      const pdfsDaPagina = listaCompletaPDFs.slice(inicio, fim);
+
+      pdfsDaPagina.forEach((pdf, index) => {
+        const canvasId = `canvas-pdf-${index}`;
+        const card = document.createElement('div');
+        card.className = 'pdf-card';
+
+        card.innerHTML = `
+          <div class="list-left">
+            <div class="canvas-wrapper">
+              <canvas id="${canvasId}"></canvas>
+            </div>
+            <div class="pdf-title">${pdf.name}</div>
+          </div>
+          <div class="btn-open">Abrir Documento</div>
+        `;
+
+        card.addEventListener('click', () => abrirLeitorPDF(pdf.name, pdf.download_url));
+        container.appendChild(card);
+
+        setTimeout(() => {
+          const canvas = document.getElementById(canvasId);
+          if (canvas) renderizarCapaCanvas(pdf.download_url, canvas);
+        }, 50);
+      });
+
+      renderizarControlesPaginacao();
+    }
+
+    async function renderizarCapaCanvas(url, canvas) {
+      try {
+        const loadingTask = pdfjsLib.getDocument(url);
+        const pdfDoc = await loadingTask.promise;
+        const page = await pdfDoc.getPage(1);
+
+        const viewport = page.getViewport({ scale: 0.4 });
+        const context = canvas.getContext('2d');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        await page.render({ canvasContext: context, viewport: viewport }).promise;
+      } catch (erro) {
+        console.warn("Falha na capa:", erro);
+      }
+    }
+
+    function renderizarControlesPaginacao() {
+      const containerPaginacao = document.getElementById('pagination-container');
+      const totalPaginas = Math.ceil(listaCompletaPDFs.length / itensPorPagina);
+
+      if (totalPaginas <= 1) {
+        containerPaginacao.innerHTML = '';
+        return;
+      }
+
+      let html = `<button class="page-btn" ${paginaAtual === 1 ? 'disabled' : ''} onclick="mudarPagina(${paginaAtual - 1})">Anterior</button>`;
+      for (let i = 1; i <= totalPaginas; i++) {
+        html += `<button class="page-btn ${i === paginaAtual ? 'active' : ''}" onclick="mudarPagina(${i})">${i}</button>`;
+      }
+      html += `<button class="page-btn" ${paginaAtual === totalPaginas ? 'disabled' : ''} onclick="mudarPagina(${paginaAtual + 1})">Próximo</button>`;
+
+      containerPaginacao.innerHTML = html;
+    }
+
+    function mudarPagina(novaPagina) {
+      paginaAtual = novaPagina;
+      renderizarPaginaAtual();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Leitor Rápido
+    function abrirLeitorPDF(nome, url) {
+      const modal = document.getElementById('modal-viewer');
+      const iframe = document.getElementById('pdf-iframe');
+      document.getElementById('modal-title').innerText = nome;
+      iframe.src = `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
+      modal.classList.add('active');
+    }
+
+    document.getElementById('modal-close-btn').addEventListener('click', () => {
+      document.getElementById('modal-viewer').classList.remove('active');
+      document.getElementById('pdf-iframe').src = 'about:blank';
+    });
+
+    // Controles da Sidebar e Modos
+    document.querySelector("#btn").addEventListener("click", () => {
+      document.querySelector(".sidebar").classList.toggle("open");
+    });
+
+    document.getElementById('btn-grid').addEventListener('click', function() {
+      this.classList.add('active');
+      document.getElementById('btn-list').classList.remove('active');
+      document.getElementById('pdf-container').className = 'pdf-container grid-mode';
+    });
+
+    document.getElementById('btn-list').addEventListener('click', function() {
+      this.classList.add('active');
+      document.getElementById('btn-grid').classList.remove('active');
+      document.getElementById('pdf-container').className = 'pdf-container list-mode';
+    });
+
+    // Inicialização
+    document.addEventListener("DOMContentLoaded", () => {
+      renderizarMenu();
+      carregarAcervoModulo("biblioteca");
+    });
   </script>
 </body>
 </html>
