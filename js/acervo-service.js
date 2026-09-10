@@ -32,6 +32,8 @@ const AcervoService = (function () {
         id: item.id,
         nome: item.nome,
         tamanhoFormatado: item.tamanhoFormatado,
+        capaUrl: item.capaUrl,
+        previewUrl: item.previewUrl,
         downloadUrl: item.downloadUrl
       }));
 
