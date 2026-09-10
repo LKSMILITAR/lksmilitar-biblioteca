@@ -1,15 +1,19 @@
 const AcervoService = (function () {
   const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbx095QJtr6fHebjX-KOpW-gVKnxj7IAGI4UDJnBJSectJfbmAxwVdLWL_bODL_wLKIb/exec";
 
-  async function obterModulo(idPasta) {
+  async function obterModulo(idPasta, forcarAtualizacao = false) {
     const chaveCache = `lks_cache_${idPasta}`;
-    const cacheExistente = sessionStorage.getItem(chaveCache);
 
-    if (cacheExistente) {
-      try {
-        return JSON.parse(cacheExistente);
-      } catch (e) {
-        sessionStorage.removeItem(chaveCache);
+    if (forcarAtualizacao) {
+      sessionStorage.removeItem(chaveCache);
+    } else {
+      const cacheExistente = sessionStorage.getItem(chaveCache);
+      if (cacheExistente) {
+        try {
+          return JSON.parse(cacheExistente);
+        } catch (e) {
+          sessionStorage.removeItem(chaveCache);
+        }
       }
     }
 
