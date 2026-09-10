@@ -128,7 +128,7 @@
     </div>
     
     <ul class="nav-list" id="menu-list">
-      <!-- Links dinâmicos injetados no script -->
+      <!-- Links dinâmicos injetados via Script -->
     </ul>
 
     <div class="profile">
@@ -179,7 +179,6 @@
     const REPO_USUARIO = "LKSMILITAR";
     const REPO_NOME = "lksmilitar-biblioteca";
 
-    // 16 Categorias registradas
     const modulos = [
       { id: "biblioteca", nome: "Biblioteca", icon: "bx-folder" },
       { id: "termodinamica", nome: "Termodinâmica", icon: "bx-current-location" },
@@ -204,7 +203,6 @@
     const itensPorPagina = 8;
     let moduloAtivo = "biblioteca";
 
-    // Monta o Menu Lateral
     function renderizarMenu() {
       const menuContainer = document.getElementById('menu-list');
       menuContainer.innerHTML = '';
@@ -221,20 +219,26 @@
       });
     }
 
-    // Troca de módulo sem recarregar a tela (SPA)
     function trocarModulo(idPasta, nomeModulo) {
-      moduloAtivo idPasta;
+      moduloAtivo = idPasta; // Atribuição corrigida
       document.getElementById('modulo-titulo').innerText = nomeModulo;
       document.getElementById('modulo-subtitulo').innerText = `Consulta de acervo e materiais técnicos do módulo ${nomeModulo}.`;
       renderizarMenu();
       carregarAcervoModulo(idPasta);
     }
 
-    // Consulta API do GitHub
     async function carregarAcervoModulo(nomeDaPasta) {
       const container = document.getElementById('pdf-container');
-      container.innerHTML = '<p style="color:#64748B; font-size:14px;">Consultando biblioteca...</p>';
+      
+      const cacheLocal = sessionStorage.getItem(`lks_cache_${nomeDaPasta}`);
+      if (cacheLocal) {
+        listaCompletaPDFs = JSON.parse(cacheLocal);
+        paginaAtual = 1;
+        renderizarPaginaAtual();
+        return;
+      }
 
+      container.innerHTML = '<p style="color:#64748B; font-size:14px;">Consultando biblioteca...</p>';
       const urlAPI = `https://api.github.com/repos/${REPO_USUARIO}/${REPO_NOME}/contents/acervo/${nomeDaPasta}`;
 
       try {
@@ -250,6 +254,7 @@
           return;
         }
 
+        sessionStorage.setItem(`lks_cache_${nomeDaPasta}`, JSON.stringify(listaCompletaPDFs));
         paginaAtual = 1;
         renderizarPaginaAtual();
       } catch (erro) {
@@ -258,7 +263,6 @@
       }
     }
 
-    // Paginação e Exibição de Capas
     function renderizarPaginaAtual() {
       const container = document.getElementById('pdf-container');
       container.innerHTML = '';
@@ -335,7 +339,6 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Leitor Rápido
     function abrirLeitorPDF(nome, url) {
       const modal = document.getElementById('modal-viewer');
       const iframe = document.getElementById('pdf-iframe');
@@ -349,7 +352,6 @@
       document.getElementById('pdf-iframe').src = 'about:blank';
     });
 
-    // Controles da Sidebar e Modos
     document.querySelector("#btn").addEventListener("click", () => {
       document.querySelector(".sidebar").classList.toggle("open");
     });
@@ -366,7 +368,6 @@
       document.getElementById('pdf-container').className = 'pdf-container list-mode';
     });
 
-    // Inicialização
     document.addEventListener("DOMContentLoaded", () => {
       renderizarMenu();
       carregarAcervoModulo("biblioteca");
