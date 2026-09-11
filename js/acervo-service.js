@@ -1,57 +1,205 @@
-const AcervoService = (function () {
-  // Subdomínio público do seu bucket lksmilitar-acervo no Cloudflare R2
-  const R2_PUBLIC_BASE_URL = "https://pub-5e6c30c074f64afb9a8459ab168a58d4.r2.dev";
+"use strict";
 
-  async function obterModulo(idPasta, forcarAtualizacao = false) {
-    const chaveCache = `lks_cache_${idPasta}`;
+const AcervoService = (() => {
+  const R2_PUBLIC_BASE_URL =
+    "https://pub-5e6c30c074f64afb9a8459ab168a58d4.r2.dev"
+      .replace(/\/$/, "");
 
-    if (forcarAtualizacao) {
-      sessionStorage.removeItem(chaveCache);
-    } else {
-      const cacheExistente = sessionStorage.getItem(chaveCache);
-      if (cacheExistente) {
-        try {
-          return JSON.parse(cacheExistente);
-        } catch (e) {
-          sessionStorage.removeItem(chaveCache);
-        }
-      }
-    }
+  const CACHE_TTL = 5 * 60 * 1000;
 
-    // Monta a URL para buscar o manifesto da pasta (ex: .../termodinamica/index.json)
-    const urlIndice = `${R2_PUBLIC_BASE_URL}/${encodeURIComponent(idPasta)}/index.json`;
+  function codificarCaminho(caminho) {
+    return String(caminho)
+      .split("/")
+      .filter(Boolean)
+      .map(encodeURIComponent)
+      .join("/");
+  }
 
+  function criarUrl(pasta, arquivo) {
+    return (
+      R2_PUBLIC_BASE_URL +
+      "/" +
+      codificarCaminho(pasta) +
+      "/" +
+      codificarCaminho(arquivo)
+    );
+  }
+
+  function lerCache(chave) {
     try {
-      const resposta = await fetch(urlIndice);
+      const valor = sessionStorage.getItem(chave);
 
-      if (!resposta.ok) {
-        throw new Error(`O módulo "${idPasta}" ainda não possui um arquivo index.json publicado.`);
+      if (!valor) {
+        return null;
       }
 
-      const listaDocumentos = await resposta.json();
+      const cache = JSON.parse(valor);
 
-      // Mapeia a lista para o formato aceito pela interface do index.html
-      const arquivosPDF = listaDocumentos.map(item => {
-        const urlArquivo = `${R2_PUBLIC_BASE_URL}/${encodeURIComponent(idPasta)}/${encodeURIComponent(item.arquivo)}`;
-        return {
-          id: item.arquivo,
-          nome: item.titulo,
-          tamanhoFormatado: item.tamanho || "PDF",
-          capaUrl: item.capaUrl || "assets/pdf-placeholder.png",
-          previewUrl: urlArquivo,
-          downloadUrl: urlArquivo
-        };
-      });
+      if (
+        !cache.criadoEm ||
+        Date.now() - cache.criadoEm > CACHE_TTL
+      ) {
+        sessionStorage.removeItem(chave);
+        return null;
+      }
 
-      sessionStorage.setItem(chaveCache, JSON.stringify(arquivosPDF));
-      return arquivosPDF;
+      return Array.isArray(cache.dados)
+        ? cache.dados
+        : null;
     } catch (erro) {
-      console.error("Erro ao carregar acervo do R2:", erro);
-      throw new Error("Não foi possível conectar ao acervo digital. Verifique se o arquivo index.json e as regras de CORS estão ativos no R2.");
+      sessionStorage.removeItem(chave);
+      return null;
     }
   }
 
+  function salvarCache(chave, dados) {
+    try {
+      sessionStorage.setItem(
+        chave,
+        JSON.stringify({
+          criadoEm: Date.now(),
+          dados: dados
+        })
+      );
+    } catch (erro) {
+      console.warn("Não foi possível salvar o cache.", erro);
+    }
+  }
+
+  function normalizarDocumento(item, pasta, indice) {
+    if (!item || typeof item !== "object") {
+      throw new Error(
+        `O item ${indice + 1} do index.json é inválido.`
+      );
+    }
+
+    const arquivo = String(item.arquivo || "").trim();
+    const titulo = String(item.titulo || "").trim();
+    const capa = String(
+      item.capa || item.capaUrl || ""
+    ).trim();
+
+    if (!arquivo || !titulo) {
+      throw new Error(
+        `O item ${indice + 1} precisa dos campos "arquivo" e "titulo".`
+      );
+    }
+
+    const urlArquivo = criarUrl(pasta, arquivo);
+
+    let urlCapa = "";
+
+    if (capa) {
+      if (
+        capa.startsWith("https://") ||
+        capa.startsWith("http://")
+      ) {
+        urlCapa = capa;
+      } else {
+        urlCapa = criarUrl(pasta, capa);
+      }
+    }
+
+    return {
+      id: `${pasta}/${arquivo}`,
+      nome: titulo,
+      tamanhoFormatado: String(item.tamanho || "PDF"),
+      capaUrl: urlCapa,
+      previewUrl: urlArquivo,
+      downloadUrl: urlArquivo
+    };
+  }
+
+  async function obterModulo(
+    idPasta,
+    forcarAtualizacao = false
+  ) {
+    const pasta = String(idPasta || "").trim();
+
+    if (!pasta) {
+      throw new Error("A pasta informada é inválida.");
+    }
+
+    const chaveCache = `lks_acervo_v2_${pasta}`;
+
+    if (forcarAtualizacao) {
+      sessionStorage.removeItem(chaveCache);
+    }
+
+    if (!forcarAtualizacao) {
+      const cache = lerCache(chaveCache);
+
+      if (cache) {
+        return cache;
+      }
+    }
+
+    const urlIndice = criarUrl(
+      pasta,
+      "index.json"
+    );
+
+    let resposta;
+
+    try {
+      resposta = await fetch(urlIndice, {
+        method: "GET",
+        mode: "cors",
+        cache: "no-store"
+      });
+    } catch (erro) {
+      console.error("Erro de rede ou CORS:", erro);
+
+      throw new Error(
+        "Não foi possível acessar o Cloudflare R2. " +
+        "Ative o acesso público e confira o CORS do bucket."
+      );
+    }
+
+    if (resposta.status === 404) {
+      throw new Error(
+        `A pasta "${pasta}" ainda não possui o arquivo index.json.`
+      );
+    }
+
+    if (!resposta.ok) {
+      throw new Error(
+        `O Cloudflare R2 retornou o erro HTTP ${resposta.status}.`
+      );
+    }
+
+    let listaDocumentos;
+
+    try {
+      listaDocumentos = await resposta.json();
+    } catch (erro) {
+      throw new Error(
+        `O arquivo ${pasta}/index.json não contém um JSON válido.`
+      );
+    }
+
+    if (!Array.isArray(listaDocumentos)) {
+      throw new Error(
+        `O arquivo ${pasta}/index.json precisa conter uma lista JSON.`
+      );
+    }
+
+    const documentos = listaDocumentos.map(
+      (item, indice) =>
+        normalizarDocumento(
+          item,
+          pasta,
+          indice
+        )
+    );
+
+    salvarCache(chaveCache, documentos);
+
+    return documentos;
+  }
+
   return {
-    obterModulo
+    obterModulo,
+    criarUrl
   };
 })();
