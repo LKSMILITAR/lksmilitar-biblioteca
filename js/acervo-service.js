@@ -1,5 +1,6 @@
 const AcervoService = (function () {
-  const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbx095QJtr6fHebjX-KOpW-gVKnxj7IAGI4UDJnBJSectJfbmAxwVdLWL_bODL_wLKIb/exec";
+  // Subdomínio público do seu bucket lksmilitar-acervo no Cloudflare R2
+  const R2_PUBLIC_BASE_URL = "https://pub-5e6c30c074f64afb9a8459ab168a58d4.r2.dev";
 
   async function obterModulo(idPasta, forcarAtualizacao = false) {
     const chaveCache = `lks_cache_${idPasta}`;
@@ -17,34 +18,36 @@ const AcervoService = (function () {
       }
     }
 
-    const urlComParametro = `${GAS_ENDPOINT_URL}?modulo=${encodeURIComponent(idPasta)}`;
+    // Monta a URL para buscar o manifesto da pasta (ex: .../termodinamica/index.json)
+    const urlIndice = `${R2_PUBLIC_BASE_URL}/${encodeURIComponent(idPasta)}/index.json`;
 
     try {
-      const resposta = await fetch(urlComParametro);
+      const resposta = await fetch(urlIndice);
 
       if (!resposta.ok) {
-        throw new Error("Erro de comunicação com o servidor de armazenamento.");
+        throw new Error(`O módulo "${idPasta}" ainda não possui um arquivo index.json publicado.`);
       }
 
-      const resultado = await resposta.json();
+      const listaDocumentos = await resposta.json();
 
-      if (!resultado.sucesso) {
-        throw new Error(resultado.erro || "Falha ao carregar os documentos da nuvem.");
-      }
-
-      const arquivosPDF = resultado.dados.map(item => ({
-        id: item.id,
-        nome: item.nome,
-        tamanhoFormatado: item.tamanhoFormatado,
-        capaUrl: item.capaUrl,
-        previewUrl: item.previewUrl,
-        downloadUrl: item.downloadUrl
-      }));
+      // Mapeia a lista para o formato aceito pela interface do index.html
+      const arquivosPDF = listaDocumentos.map(item => {
+        const urlArquivo = `${R2_PUBLIC_BASE_URL}/${encodeURIComponent(idPasta)}/${encodeURIComponent(item.arquivo)}`;
+        return {
+          id: item.arquivo,
+          nome: item.titulo,
+          tamanhoFormatado: item.tamanho || "PDF",
+          capaUrl: item.capaUrl || "assets/pdf-placeholder.png",
+          previewUrl: urlArquivo,
+          downloadUrl: urlArquivo
+        };
+      });
 
       sessionStorage.setItem(chaveCache, JSON.stringify(arquivosPDF));
       return arquivosPDF;
     } catch (erro) {
-      throw new Error("Não foi possível conectar ao servidor. Verifique a conexão ou tente novamente.");
+      console.error("Erro ao carregar acervo do R2:", erro);
+      throw new Error("Não foi possível conectar ao acervo digital. Verifique se o arquivo index.json e as regras de CORS estão ativos no R2.");
     }
   }
 
